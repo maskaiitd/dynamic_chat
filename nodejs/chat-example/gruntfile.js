@@ -46,8 +46,8 @@ module.exports = function(grunt) {
 								//io.emit('moving',msg);
 							    //console.log('message: ' + msg);
 							  });
-							socket.on('moving',function(msg){
-								io.emit('moving',msg)
+							socket.on('move',function(msg){
+								io.emit('move',msg)
 							});
 
             				socket.on('disconnect',function(){

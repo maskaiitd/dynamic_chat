@@ -9,40 +9,48 @@
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
  <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-<script src="js/kiwi-example-main.js"></script>
+<!-- <script src="js/kiwi-example-main.js"></script>
 <script src="js/kiwi.min.js"></script>
-<script src="js/keyboard.js"></script>
+ -->
+ <script src="js/snake.js"></script>
 <script>
   idlist=[]
-  socket = io();
-  console.dir(socket);
-  setInterval(function () {socket.emit('create', state.player.id);}, 1500);
+  // socket = io();
+  // console.dir(socket);
+  // id = prompt("Please enter your name", "hello world");
+  // //init();
+  // snake_array = create_snake();
+  // score = 0 ;
+  // d = "right";
+  // snake = {id:id,snake_array:snake_array,score:score,d:d};
+  //  setInterval(function () {socket.emit('create', snake);}, 1500);
   
-  //console.log("wahh");
-  //io.emit('create', 'created');
-   socket.on('create', function(msg){
+  
+  
+  //   socket.on('create', function(msg){
+  //     console.log("create")
+  //   console.dir(msg);
+  // //   if(idlist.indexOf(msg) == -1){
+  // //   state.newchild(msg);
+  // //   idlist.push(msg);
+  // //     }
+  //  });
+  // //  socket.on('moving',function(msg){
+  // console.log("moving"+ msg.id +" hey "+state.player.id);
+  // player_id = msg.id;
+  // player_x = msg.x;
+  // player_y = msg.y;
 
-    console.log(msg);
-    if(idlist.indexOf(msg) == -1){
-    state.newchild(msg);
-    idlist.push(msg);
-      }
-  });
-   socket.on('moving',function(msg){
-  console.log("moving"+ msg.id +" hey "+state.player.id);
-  player_id = msg.id;
-  player_x = msg.x;
-  player_y = msg.y;
-
-  playeru = state.play_group.getChildByID(player_id);
-  playeru.x=player_x;
-  playeru.y = player_y;
-  playeru.update();
-   });
+  // playeru = state.play_group.getChildByID(player_id);
+  // playeru.x=player_x;
+  // playeru.y = player_y;
+  // playeru.update();
+  //  });
 
 </script>
   </head>
   <body>
+<canvas id="canvas" width="1050" height="650"></canvas>
 
   </body>
 </html>
