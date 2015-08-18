@@ -14,6 +14,14 @@ $(document).ready(function(){
 	//Lets create the snake now
 	var snake_array; //an array of cells to make up the snake
 	var snake_multi=[];
+	function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 	function init(snake_attr)
 	{
 	
@@ -39,7 +47,8 @@ $(document).ready(function(){
   snake_array = create_snake();
   score = 0 ;
   d = "right";
-  snake = {id:id,snake_array:snake_array,score:score,d:d};
+  colour = getRandomColor();
+  snake = {id:id,snake_array:snake_array,score:score,d:d,colour:colour};
   console.dir(snake)
    setTimeout(function () {socket.emit('create', snake);init(snake)}, 1500);
   
@@ -104,7 +113,7 @@ $(document).ready(function(){
 			
 			sn_array = snake_multi[j].snake_array;
 			sn_d = snake_multi[j].d;
-
+			sn_color = snake_multi[j].colour;
 		
 		
 		//The movement code for the snake to come here.
@@ -155,11 +164,11 @@ $(document).ready(function(){
 			{
 				var c = sn_array[i];
 			//Lets paint 10px wide cells
-				paint_cell(c.x, c.y);
+				paint_cell(c.x, c.y,sn_color);
 			}
 		
 		//Lets paint the food
-		paint_cell(food.x, food.y);
+		paint_cell(food.x, food.y,"red");
 		//Lets paint the score
 		var score_text = "Score: " + score;
 		ctx.fillText(score_text, 5, h-5);
@@ -170,9 +179,9 @@ $(document).ready(function(){
 		
 	
 	//Lets first create a generic function to paint cells
-	function paint_cell(x, y)
+	function paint_cell(x, y,color)
 	{
-		ctx.fillStyle = "blue";
+		ctx.fillStyle = color;
 		ctx.fillRect(x*cw, y*cw, cw, cw);
 		ctx.strokeStyle = "white";
 		ctx.strokeRect(x*cw, y*cw, cw, cw);
