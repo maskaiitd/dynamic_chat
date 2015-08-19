@@ -78,7 +78,7 @@ $(document).ready(function(){
     		snake_multi.push(msgs[i]);
     		msg = msgs[i];
     		$("#users").append('<div class="user_score" id=client_' + msg.id + ' ' +
-                            'style="min-height:75px;color:white;line-height: 15px;text-align: center;background:'+msg.colour+'" >'+msg.id+'<br/> score - '+ msg.score+'</div>');
+                            'style="min-height:50px;color:white;line-height: 15px;text-align: center;background:'+msg.colour+'" >'+msg.id+'<br/> score - '+ msg.score+'</div>');
     	
     	}
     });

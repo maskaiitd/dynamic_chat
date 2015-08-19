@@ -1,8 +1,8 @@
 var io ;
 clients ={};
 snakes=[];
-var w = 1050;
-var h = 650;
+var w = 900;
+var h = 500;
 var cw = 10;
 food = {
 			x: Math.round(Math.random()*(w-cw)/cw), 
