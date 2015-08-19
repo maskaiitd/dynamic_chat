@@ -30,12 +30,16 @@ $(document).ready(function(){
 
 		// d = "right"; //default direction
 		// create_snake();
-		create_food(); //Now we can see the food particle
+		//create_food(); //Now we can see the food particle
 		//finally lets display the score
 		score = 0;
 		//Lets move the snake now using a timer which will trigger the paint function
 		//every 60ms
 		snake_multi.push(snake_attr);
+		msg = snake_attr;
+		$("#users").append('<div class="user_score" id=client_' + msg.id + ' ' +
+                            'style="min-height:50px;color:white;line-height: 15px;text-align: center;background:'+msg.colour+'" >'+msg.id+'<br/> score - '+ msg.score+'</div>');
+    	
 		if(typeof game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 100);
 		setInterval(update,1000);
@@ -59,6 +63,8 @@ $(document).ready(function(){
       console.log("create");
     	console.dir(msg);
     	snake_multi.push(msg);
+    	 $("#users").append('<div class="user_score" id=client_' + msg.id + ' ' +
+                            'style="min-height:50px;color:white;line-height: 15px;text-align: center;background:'+msg.colour+'" >'+msg.id+'<br/> score - '+ msg.score+'</div>');
     	console.log(snake_multi);
   //   if(idlist.indexOf(msg) == -1){
   //   state.newchild(msg);
@@ -70,15 +76,35 @@ $(document).ready(function(){
     	console.log("load before snakes");
     	for(var i = 0; i<msgs.length;i++){
     		snake_multi.push(msgs[i]);
+    		msg = msgs[i];
+    		$("#users").append('<div class="user_score" id=client_' + msg.id + ' ' +
+                            'style="min-height:75px;color:white;line-height: 15px;text-align: center;background:'+msg.colour+'" >'+msg.id+'<br/> score - '+ msg.score+'</div>');
+    	
     	}
     });
+
+    socket.on('food',function(foo){
+    	console.log("food : "+foo);
+    	console.dir(foo);
+    	food = foo;
+    });
+
+
+    socket.on('score',function(msg){
+    	var obj = $('#client_'+msg.id).text(msg.id+"\n score - "+msg.score);
+    	obj.html(obj.html().replace(/\n/g,'<br/>'));
+    });
+
+
+
     socket.on('delete_snake',function(msg){
     	console.log("user dissconected hh");
     	console.log(msg);
     	for(var i = 0; i<snake_multi.length;i++){
-    		if(snake_multi[i].id = msg.id){
+    		if(snake_multi[i].id == msg.id){
     			console.log("deleted "+snake_multi);
     			snake_multi.splice(i,1);
+    			$('#client_'+msg.id).remove();
     			return true;
     		}
     	}
@@ -115,6 +141,7 @@ $(document).ready(function(){
 			x: Math.round(Math.random()*(w-cw)/cw), 
 			y: Math.round(Math.random()*(h-cw)/cw), 
 		};
+		socket.emit('food',food);
 		//This will create a cell with x/y between 0-44
 		//Because there are 45(450/10) positions accross the rows and columns
 	}
@@ -175,9 +202,25 @@ $(document).ready(function(){
 		//The logic is simple
 		//If the new head position matches with that of the food,
 		//Create a new head instead of moving the tail
-		
+		if(j==0){
+		if(nx == food.x && ny == food.y)
+		{
+			var tail = {x: nx, y: ny};
+			snake_multi[0].score = snake_multi[0].score+1;
+			//Create new food
+			socket.emit('score',snake_multi[0] );
+			create_food();
+		}
+		else
+		{
 			var tail = sn_array.pop(); //pops out the last cell
 			tail.x = nx; tail.y = ny;
+		}
+	}
+	else{
+		var tail = sn_array.pop(); //pops out the last cell
+			tail.x = nx; tail.y = ny;
+	}
 		//The snake can now eat the food.
 		
 		sn_array.unshift(tail); //puts back the tail as the first cell
@@ -190,7 +233,12 @@ $(document).ready(function(){
 			}
 		
 		//Lets paint the food
+		try{
 		paint_cell(food.x, food.y,"red");
+	}
+	catch(err){
+		console.log(err);
+	}
 		//Lets paint the score
 		var score_text = "Score: " + score;
 		ctx.fillText(score_text, 5, h-5);

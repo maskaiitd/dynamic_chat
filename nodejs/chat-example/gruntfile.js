@@ -1,6 +1,13 @@
 var io ;
 clients ={};
 snakes=[];
+var w = 1050;
+var h = 650;
+var cw = 10;
+food = {
+			x: Math.round(Math.random()*(w-cw)/cw), 
+			y: Math.round(Math.random()*(h-cw)/cw), 
+		};
 module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-connect');
@@ -32,7 +39,7 @@ module.exports = function(grunt) {
 						options: {
 								keepalive: true,
 								hostname: '*',
-								port: 8000,
+								port: 3000,
 								socketio:true,
 								onCreateServer: function(root, connect, options) {
 								io = require('socket.io').listen(root);
@@ -44,27 +51,40 @@ module.exports = function(grunt) {
             				//var s = require('./html/js/keyboard.js');
             				// //s.state.addchild();
             				// io.emit('before',snakes);
-            				console.log("socket got connected");
             				//socket.emit('before',snakes);
             				//io.emit('create','create new spirit');
             				socket.on('update',function(msg){
-            					console.log("yoo");
+
+            					console.log(msg.id);
             					for(var soc in clients){
 									if(clients[soc].id == msg.id){
+										console.log(soc+" - "+msg.id);
 										clients[soc].snake_array = msg.snake_array;
+										clients[soc].score = msg.score;
+										return
 									}
 								};
             				});
+
+            				socket.on('score',function(msg){
+            					console.log(msg.id);
+            					io.emit('score',msg);
+            				});
+
 							socket.on('create', function(msg){
-								console.log("socket id"+socket.id);
 								 snakes = [];
+								 console.log("socket got connected");
+            				
+								 //console.log(findClientsSocket());
 								for( var soc in clients){
 									snakes.push(clients[soc]);
 								}
 								socket.emit('before',snakes);
-																
+								socket.emit('food',food);
+								clients[socket.id] = msg;
+								console.log("socket id"+socket.id+" msg "+clients[socket.id].id);						
 								socket.broadcast.emit('create', msg);
-								clients[socket] = msg;
+								
 								//io.emit('moving',msg);
 							    //console.log('message: ' + msg);
 							  });
@@ -72,18 +92,32 @@ module.exports = function(grunt) {
 								for(var soc in clients){
 									if(clients[soc].id == msg.id){
 										clients[soc].d = msg.d;
+									console.log("socket id of move : "+soc+" msg id : "+msg.id);
+										
 									}
 								};
 								
 								io.emit('move',msg);
 							});
 
+
+							socket.on('food',function(msg){
+								socket.broadcast.emit('food',msg);
+							})
+
             				socket.on('disconnect',function(){
-            					msg = clients[socket]
-            					delete clients[socket]
+            					try {
+            					console.log("new");
+            					msg = clients[socket.id]
+            					console.log(socket.id+"  -------- "+msg.id);
+            					delete clients[socket.id]
+            					console.log(socket.id+" this is socket "+msg.id);
             					console.dir(msg);
 								io.emit('delete_snake',msg);
-						  console.log('user dissconnected');
+								}
+								catch(err){
+									console.log(err);
+								}
 						});
           });
         }
