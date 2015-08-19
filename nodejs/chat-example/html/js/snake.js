@@ -38,6 +38,7 @@ $(document).ready(function(){
 		snake_multi.push(snake_attr);
 		if(typeof game_loop != "undefined") clearInterval(game_loop);
 		game_loop = setInterval(paint, 100);
+		setInterval(update,1000);
 	}
 	//init();
 	socket = io();
@@ -50,12 +51,12 @@ $(document).ready(function(){
   colour = getRandomColor();
   snake = {id:id,snake_array:snake_array,score:score,d:d,colour:colour};
   console.dir(snake)
-   setTimeout(function () {socket.emit('create', snake);init(snake)}, 1500);
+   setTimeout(function () {socket.emit('create', snake);init(snake);}, 1500);
   
   
   
     socket.on('create', function(msg){
-      console.log("create")
+      console.log("create");
     	console.dir(msg);
     	snake_multi.push(msg);
     	console.log(snake_multi);
@@ -64,6 +65,24 @@ $(document).ready(function(){
   //   idlist.push(msg);
   //     }
    });
+
+    socket.on('before',function(msgs){
+    	console.log("load before snakes");
+    	for(var i = 0; i<msgs.length;i++){
+    		snake_multi.push(msgs[i]);
+    	}
+    });
+    socket.on('delete_snake',function(msg){
+    	console.log("user dissconected hh");
+    	console.log(msg);
+    	for(var i = 0; i<snake_multi.length;i++){
+    		if(snake_multi[i].id = msg.id){
+    			console.log("deleted "+snake_multi);
+    			snake_multi.splice(i,1);
+    			return true;
+    		}
+    	}
+    });
     socket.on('move',function(msg){
     	for(var k =0 ; k < snake_multi.length; k++){
     		if(snake_multi[k].id == msg.id){
@@ -100,6 +119,9 @@ $(document).ready(function(){
 		//Because there are 45(450/10) positions accross the rows and columns
 	}
 	
+	function update(){
+		socket.emit('update',snake_multi[0] );
+	}
 	//Lets paint the snake now
 	function paint()
 	{
@@ -159,7 +181,7 @@ $(document).ready(function(){
 		//The snake can now eat the food.
 		
 		sn_array.unshift(tail); //puts back the tail as the first cell
-		
+		snake_multi[j].snake_array= sn_array;
 			for(var i = 0; i < sn_array.length; i++)
 			{
 				var c = sn_array[i];
@@ -205,16 +227,16 @@ $(document).ready(function(){
 		//We will add another clause to prevent reverse gear
 		d = snake_multi[0].d;
 		if(key == "37" && d != "right"){ 
-				socket.emit('move',{id:id,d:"left"} );
+				socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"left"} );
 			}
 		else if(key == "38" && d != "down") {
-			socket.emit('move',{id:id,d:"up"} );
+			socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"up"} );
 		}
 		else if(key == "39" && d != "left"){
-			socket.emit('move',{id:id,d:"right"} );
+			socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"right"} );
 		}
 		else if(key == "40" && d != "up") {
-			socket.emit('move',{id:id,d:"down"} );
+			socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"down"} );
 		}
 		//The snake is now keyboard controllable
 	})
