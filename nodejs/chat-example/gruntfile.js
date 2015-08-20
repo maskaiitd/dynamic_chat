@@ -102,6 +102,7 @@ module.exports = function(grunt) {
 
 
 							socket.on('food',function(msg){
+								food = msg;
 								socket.broadcast.emit('food',msg);
 							})
 

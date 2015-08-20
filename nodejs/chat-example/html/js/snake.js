@@ -10,6 +10,7 @@ $(document).ready(function(){
 	var d;
 	var food;
 	var score;
+	var moves_try = 0;
 	
 	//Lets create the snake now
 	var snake_array; //an array of cells to make up the snake
@@ -83,6 +84,18 @@ $(document).ready(function(){
     	}
     });
 
+   
+
+socket.on('disconnect', function () {
+	console.log("disconnected");
+       if(confirm("You got disconnected Do you want to refresh")){
+       		location.reload();
+       }
+       else{
+       	window.close();
+       }  
+    });
+
     socket.on('food',function(foo){
     	console.log("food : "+foo);
     	console.dir(foo);
@@ -112,7 +125,11 @@ $(document).ready(function(){
     socket.on('move',function(msg){
     	for(var k =0 ; k < snake_multi.length; k++){
     		if(snake_multi[k].id == msg.id){
+    			if(k==0){
+    				moves_try =0;
+    			}
     			snake_multi[k].d = msg.d;
+    			snake_multi[k].snake_array = msg.snake_array;
     			return true;
     		}
     	};
@@ -182,20 +199,7 @@ $(document).ready(function(){
 		//This will restart the game if the snake hits the wall
 		//Lets add the code for body collision
 		//Now if the head of the snake bumps into its body, the game will restart
-		if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw ){
-			if(nx==-1){
-				nx = w/cw-1
-			}
-			if(nx == w/cw){
-				nx = 0
-			}
-			if(ny==-1){
-				ny = h/cw-1
-			}
-			if(ny == h/cw){
-				ny = 0
-			}
-		}
+		
 		
 		
 		//Lets write the code to make the snake eat the food
@@ -206,10 +210,18 @@ $(document).ready(function(){
 		if(nx == food.x && ny == food.y)
 		{
 			var tail = {x: nx, y: ny};
-			snake_multi[0].score = snake_multi[0].score+1;
+			snake_multi[0].score = snake_multi[0].score+5;
 			//Create new food
 			socket.emit('score',snake_multi[0] );
 			create_food();
+		}
+		else if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw ){
+			if(confirm("Game over \n what to join again??")){
+				location.reload();
+			}
+			else{
+				window.location = "http://i.ytimg.com/vi/EJLptDq5fQk/maxresdefault.jpg";
+			}
 		}
 		else
 		{
@@ -272,12 +284,17 @@ $(document).ready(function(){
 	//Lets add the keyboard controls now
 	$(document).keydown(function(e){
 		var key = e.which;
+		if(moves_try > 5){
+			socket.disconnect();
+		}
+		moves_try = moves_try+1;
 		//We will add another clause to prevent reverse gear
 		d = snake_multi[0].d;
 		if(key == "37" && d != "right"){ 
 				socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"left"} );
 			}
 		else if(key == "38" && d != "down") {
+			socket.disconnect();
 			socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"up"} );
 		}
 		else if(key == "39" && d != "left"){
