@@ -38,8 +38,8 @@ module.exports = function(grunt) {
 				root: {
 						options: {
 								keepalive: true,
-								hostname: '*',
-								port: 3000,
+								hostname: process.env.IP,
+								port: process.env.PORT,
 								socketio:true,
 								onCreateServer: function(root, connect, options) {
 								io = require('socket.io').listen(root);
@@ -55,10 +55,8 @@ module.exports = function(grunt) {
             				//io.emit('create','create new spirit');
             				socket.on('update',function(msg){
 
-            					console.log(msg.id);
             					for(var soc in clients){
 									if(clients[soc].id == msg.id){
-										console.log(soc+" - "+msg.id);
 										clients[soc].snake_array = msg.snake_array;
 										clients[soc].score = msg.score;
 										return
@@ -67,14 +65,12 @@ module.exports = function(grunt) {
             				});
 
             				socket.on('score',function(msg){
-            					console.log(msg.id);
             					io.emit('score',msg);
             				});
 
 							socket.on('create', function(msg){
 								 snakes = [];
-								 console.log("socket got connected");
-            				
+								 
 								 //console.log(findClientsSocket());
 								for( var soc in clients){
 									snakes.push(clients[soc]);
@@ -82,7 +78,6 @@ module.exports = function(grunt) {
 								socket.emit('before',snakes);
 								socket.emit('food',food);
 								clients[socket.id] = msg;
-								console.log("socket id"+socket.id+" msg "+clients[socket.id].id);						
 								socket.broadcast.emit('create', msg);
 								
 								//io.emit('moving',msg);
@@ -92,7 +87,6 @@ module.exports = function(grunt) {
 								for(var soc in clients){
 									if(clients[soc].id == msg.id){
 										clients[soc].d = msg.d;
-									console.log("socket id of move : "+soc+" msg id : "+msg.id);
 										
 									}
 								};
@@ -108,13 +102,9 @@ module.exports = function(grunt) {
 
             				socket.on('disconnect',function(){
             					try {
-            					console.log("new");
             					msg = clients[socket.id]
-            					console.log(socket.id+"  -------- "+msg.id);
             					delete clients[socket.id]
-            					console.log(socket.id+" this is socket "+msg.id);
-            					console.dir(msg);
-								io.emit('delete_snake',msg);
+            					io.emit('delete_snake',msg);
 								}
 								catch(err){
 									console.log(err);

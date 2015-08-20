@@ -105,6 +105,11 @@ socket.on('disconnect', function () {
 
     socket.on('score',function(msg){
     	var obj = $('#client_'+msg.id).text(msg.id+"\n score - "+msg.score);
+    	for(var o = 0; o<snake_multi;o++){
+    		if(snake_multi[o].id==msg.id){
+    			snake_multi[o].snake_array = msg.snake_array;
+    		}
+    	}
     	obj.html(obj.html().replace(/\n/g,'<br/>'));
     });
 
@@ -129,7 +134,7 @@ socket.on('disconnect', function () {
     				moves_try =0;
     			}
     			snake_multi[k].d = msg.d;
-    			snake_multi[k].snake_array = msg.snake_array;
+    			// snake_multi[k].snake_array = msg.snake_array;
     			return true;
     		}
     	};
@@ -294,7 +299,6 @@ socket.on('disconnect', function () {
 				socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"left"} );
 			}
 		else if(key == "38" && d != "down") {
-			socket.disconnect();
 			socket.emit('move',{id:id,snake_array:snake_multi[0].snake_array,d:"up"} );
 		}
 		else if(key == "39" && d != "left"){
